@@ -1,4 +1,12 @@
 <?php
+
+    require '../../inc/functions.php';        
+    $auth = autenticado();
+
+    if(!$auth){
+        header('Location: /');
+    }
+
     //BBDD
     require '../../inc/config/database.php';
     $db = conectarDB();
@@ -20,18 +28,42 @@
 
     //Ejecutar el codigo despues de que el usuario envie el formulario
     if($_SERVER['REQUEST_METHOD'] === 'POST'){ //Validar valor metodo formulario POST a traves de los datos del servidor.
-        echo "<pre>";
-        //var_dump($_POST); //Mostrar los datos de la super variable global $_POST y acceder al valor ($_POST['nombre'])
-        echo "</pre>";
 
-        $nombre = $_POST['nombre'];
-        $precio = $_POST['precio'];
-        $descripcion = $_POST['descripcion'];
-        $habitaciones = $_POST['habitaciones'];
-        $wc = $_POST['wc'];
-        $parking = $_POST['parking'];
-        $vendedorId = $_POST['vendedor'];
+        //$numero = "1HOLA1";
+        //$numero2 = 2;
+        //Sanear código
+        //$resultado = filter_var($numero, FILTER_SANITIZE_NUMBER_INT);
+        //$resultado = filter_var($numero, FILTER_SANITIZE_STRING);
+        //Validar código
+        //$resultado = filter_var($numero2, FILTER_VALIDATE_INT);
+        //var_dump($resultado);
+        //exit;
+
+        //echo "<pre>";
+        //var_dump($_POST); //Mostrar los datos de la super variable global $_POST y acceder al valor ($_POST['nombre'])
+        //echo "</pre>";
+
+        //echo "<pre>";
+        //var_dump($_FILES);  //Muestra datos especificos de los media subidos
+        //echo "</pre>";
+
+        //Validacion de variables via function mysqli real escape string, luego insercion
+
+        $nombre = mysqli_real_escape_string($db, $_POST['nombre']);
+        $precio = mysqli_real_escape_string($db, $_POST['precio']);
+        $descripcion = mysqli_real_escape_string($db, $_POST['descripcion']);
+        $habitaciones = mysqli_real_escape_string($db, $_POST['habitaciones']);
+        $wc = mysqli_real_escape_string($db, $_POST['wc']);
+        $parking = mysqli_real_escape_string($db, $_POST['parking']);
+        $vendedorId = mysqli_real_escape_string($db, $_POST['vendedor']);
         $creado = date('Y/m/d');
+
+        //Asignar files hacia una variable
+
+        $imagen = $_FILES['imagen'];
+
+        //var_dump($imagen);
+        //exit;
 
         //Validación form
 
@@ -57,15 +89,43 @@
             $errores[] = "Elige un vendedor";
         }
 
+        if(!$imagen['name'] || $imagen['error']){
+            $errores[] = "La imagen es obligatoria";
+        }
+
+        //Validad por tamaño ( 1MB max )
+
+        $medida = 1000 * 1000;
+
+        if(!$imagen['size'] > $medida){
+            $errores[] = "La imagen tiene que tener un tamaño inferior a 100kb";
+        }
+
         //echo "<pre>";
         //var_dump($errores);
         //echo "</pre>";
 
         //Validar que el array de errores esté vacio y inserta el código SQL
         if(empty($errores)){
+
+            /*SUBIDA DE ARCHIVOS*/
+            //Crear carpeta
+
+            $carpetaImagenes = '../../imagenes/';
+            if(!is_dir($carpetaImagenes)){
+                mkdir($carpetaImagenes);
+            }
+
+            //Generar nombre unico para la imagen
+            $nombreImagen = md5(uniqid(rand(), true)) . ".jpg";
+            //var_dump($nombreImagen);
+
+            //Subir la imagen
+            move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen);
+
             //Insertar datos en la BBDD
-            $query = "INSERT INTO propiedades ( nombre, precio, descripcion, habitaciones, wc, parking, creado, vendedorId ) 
-            VALUES ('$nombre', '$precio', '$descripcion', '$habitaciones', '$wc', '$parking', '$creado', '$vendedorId')";
+            $query = "INSERT INTO propiedades ( nombre, precio, imagen, descripcion, habitaciones, wc, parking, creado, vendedorId ) 
+            VALUES ('$nombre', '$precio', '$nombreImagen', '$descripcion', '$habitaciones', '$wc', '$parking', '$creado', '$vendedorId')";
 
             //echo $query; Comprobar Query
 
@@ -73,12 +133,11 @@
 
             if($resultado){
                 //Redireccionar al usuario una vez completada la operacion
-                header('Location: /admin');
+                header('Location: /admin?resultado=1');
             }
         }
     }
 
-    require '../../inc/functions.php';
     includeTemplate('header');
 ?>
     <main class="contenedor seccion">
@@ -90,7 +149,7 @@
         </div>            
         <?php endforeach; ?>
 
-        <form action="" class="formulario" method="POST" action="/admin/properties/create.php">
+        <form action="" class="formulario" method="POST" action="/admin/properties/create.php" enctype="multipart/form-data"> <!--Es necesario este enctype cuando se realiza una subida de archivos-->
             <fieldset>
                 <legend>Información General</legend>
                 <label for="nombre">nombre:</label>

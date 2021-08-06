@@ -1,3 +1,14 @@
+<?php
+
+    if(!isset($_SESSION)){
+        session_start();
+    }
+
+    $auth = $_SESSION['login'] ?? false;
+
+    //var_dump($auth);
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,11 +30,17 @@
                 </div>
                 <div class="derecha">
                     <nav class="navegacion">
-                        <a href="nosotros.php">Nosotros</a>
-                        <a href="anuncios.php">Anuncios</a>
-                        <a href="blog.php">Blog</a>
-                        <a href="contacto.php">Contacto</a>
+                        <a href="/nosotros.php">Nosotros</a>
+                        <a href="/anuncios.php">Anuncios</a>
+                        <a href="/blog.php">Blog</a>
+                        <a href="/contacto.php">Contacto</a>
                         <img src="/build/img/dark-mode.svg" alt="boton dark mode" class="dark-mode-boton">
+                        <?php if($auth): ?>
+                            <a href="/cerrar-sesion.php" class="boton boton-amarillo-sesion">Cerrar sesión</a>
+                            <a href="/admin" class="boton boton-rojo-sesion">Administrador</a>
+                        <?php else: ?>
+                            <a href="/login.php" class="boton boton-amarillo-sesion">Iniciar sesión</a>
+                        <?php endif; ?>
                     </nav>
                 </div>
             </div>

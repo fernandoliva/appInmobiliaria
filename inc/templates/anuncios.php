@@ -1,32 +1,24 @@
 <?php
 
-    $id = $_GET['id'];
-    $id = filter_var($id, FILTER_VALIDATE_INT);
-
-    if(!$id){
-        header('Location: /');
-    }
-
-    require 'inc/config/database.php';
-    require 'inc/functions.php';    
-    includeTemplate('header');
-
     //Conexion a la BBDD
+    require __DIR__ . '/../config/database.php';
     $db = conectarDB();
     
     //Consultar
-    $query = "SELECT * FROM propiedades WHERE id = ${id}";
+    $query = "SELECT * FROM propiedades LIMIT ${limite}";
 
     //Resultado
     $resultado = mysqli_query($db, $query);
-    $propiedad = mysqli_fetch_assoc($resultado);
 
 ?>
-    <main class="contenedor seccion contenido-centrado">
-        <h1><?php echo $propiedad['nombre']; ?></h1>
-        <img src="/imagenes/<?php echo $propiedad['imagen']; ?>" alt="Imagen de la propiedad" loading="lazy">
 
-        <div class="resumen-propiedad">
+<div class="contenedor-anuncios">
+    <?php while($propiedad = mysqli_fetch_assoc($resultado)): ?>
+    <div class="anuncio">
+        <img src="/imagenes/<?php echo $propiedad['imagen']; ?>" alt="Anuncio" loading="lazy">
+        <div class="contenido-anuncio">
+            <h3><?php echo $propiedad['nombre']; ?></h3>
+            <p><?php echo $propiedad['descripcion']; ?></p>
             <p class="precio"><?php echo $propiedad['precio']; ?>€</p>
             <ul class="iconos-caracteristicas">
                 <li>
@@ -42,11 +34,12 @@
                     <p><?php echo $propiedad['habitaciones']; ?></p>
                 </li>
             </ul>
-            <p><?php echo $propiedad['descripcion']; ?></p>
-        </div>
-    </main>
-<?php 
-    includeTemplate('footer');
+            <a href="anuncio.php?id=<?php echo $propiedad['id']; ?>" class="boton boton-amarillo-block">Ver propiedad</a>
+        </div> <!--Contenido anuncio-->
+    </div><!--Anuncio-->
+    <?php endwhile; ?>
+</div><!--Contenedor de anuncios-->
+<?php
     //Cerrar la conexion
     mysqli_close($db);
 ?>
