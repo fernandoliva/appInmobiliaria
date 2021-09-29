@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1242" height="144" viewBox="0 0 1242 144">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 200px;
+        text-anchor: middle;
+        fill: #fff;
+        font-family: "Gill Sans";
+        font-weight: 300;
+      }
+
+      .cls-2 {
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <text id="INMOFOLIVA" class="cls-1" x="4" y="7"><tspan x="4">INMO<tspan class="cls-2">FOLIVA</tspan></tspan></text>
+</svg>
